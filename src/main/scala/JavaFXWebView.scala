@@ -22,7 +22,11 @@ class JavaFXWebView(val webView: JFXWebView) extends WebView {
   val currentState =
     new AtomicReference[Worker.State](webView.getEngine.getLoadWorker.stateProperty.getValue)
 
-  private var onNextLoadRunnables = Seq[Runnable]()
+  private var onNextLoadRunnables = Seq[Runnable]({ () =>
+    webView.getEngine.locationProperty.addListener { (old: String, newLocation: String) =>
+      load(new URL(newLocation))
+    }
+  })
   private var onEachLoadRunnables = Seq[Runnable]()
 
   def isLoading = currentState.get == Worker.State.RUNNING
