@@ -1,7 +1,8 @@
 package org.nlogo.extensions.webview
 
 import java.io.File
-import java.net.URL
+import java.net.{ URI, URL }
+import java.awt.Desktop
 
 import org.nlogo.app.App
 import org.nlogo.api._
@@ -21,6 +22,7 @@ class WebViewExtension extends DefaultClassManager {
   override def load(prims: PrimitiveManager) = {
     val manager =
       new WebViewStateManager(new NetLogoJavascriptBridge)
+    prims.addPrimitive("browse",       Browse)
     prims.addPrimitive("close",        new Close(manager))
     prims.addPrimitive("create-frame", new CreateFrame(folder, manager))
     prims.addPrimitive("create-tab",   new CreateTab(folder, manager))
@@ -203,5 +205,16 @@ class Focus(manager: WebViewStateManager) extends DefaultCommand {
 
   override def perform(args: Array[Argument], context: Context): Unit = {
     manager.container.foreach(_.focus())
+  }
+}
+
+object Browse extends DefaultCommand {
+  override def getSyntax: Syntax = Syntax.commandSyntax(Array[Int](Syntax.StringType))
+
+  override def getAgentClassString: String = "OTPL"
+
+  override def perform(args: Array[Argument], context: Context): Unit = {
+    if (Desktop.isDesktopSupported)
+      Desktop.getDesktop.browse(new URI(args(0).getString))
   }
 }

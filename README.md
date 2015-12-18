@@ -62,6 +62,17 @@ webview:create-frame "Test" "test2.html"             ; creates a frame with titl
 webview:create-frame "Test" "http://www.example.org" ; creates a frame with title "Test", open to "example.org"
 ```
 
+### `webview:browse`
+
+Directs the system-default browser to open the specified URL.
+The browser will launch in a separate process.
+Consequently, further calls to webview primitives will not effect this browser.
+
+Example:
+```NetLogo
+webview:browse "htttp://www.example.org/" ; direct the operating system to open the default browser to example.org
+```
+
 ### `webview:load`
 
 Points an open webview frame to a URL.
