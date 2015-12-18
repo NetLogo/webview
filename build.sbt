@@ -32,6 +32,4 @@ netLogoZipSources   := false
 netLogoZipExtras ++= (baseDirectory.value / "html" ***).get.map(
   f => (f -> ("html/" + f.getName)))
 
-unmanagedJars in Compile += Attributed.blank(file(System.getProperty("java.home") + "/lib/ext/jfxrt.jar"))
-
 fork in run := true
