@@ -125,6 +125,31 @@ webview:eval "var o = {\"abc\": 123, \"def\": false}; o"   ; => (list (list "abc
 webview:eval "document.getElementById(\"reporter\").value" ; => "foo"
 ```
 
+### `webview:add-module`
+
+Adds a predefined webview "module" to the current page.
+Note that the "NetLogo" and "javaWebView" modules are added by default on all pages loaded from the file system.
+The modules available are:
+
+* NetLogo
+* javaWebView
+
+All other values passed to `webview:add-module` will raise an error.
+
+**WARNING**: Modules give the page you are on the ability to execute commands directly into NetLogo.
+This allows the page the ability to run arbitrary NetLogo code, from which a malicious user could do significant damage.
+This functionality should be used with great care and only on trusted pages.
+
+Example:
+```NetLogo
+webview:add-module "NetLogo"     ; add the NetLogo module into the current page. See above for description of functionality
+webview:add-module "javaWebView" ; adds javaWebView module into the current page.
+```
+
+The `javaWebView` module is a binding to the JavaFX WebView containing the current page.
+Methods can be called on this object just like any other javascript object.
+See also the [Oracle documentation for `javafx.scene.web.WebView`](https://docs.oracle.com/javafx/2/api/javafx/scene/web/WebView.html).
+
 ### `webview:null`
 
 The null javascript value.

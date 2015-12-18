@@ -28,6 +28,10 @@ class WebViewStateManager(bridge: JavascriptBridge, browserFactory: WebViewFacto
     webView.executeJSForResult(js)
   }
 
+  def addModule(name: String, obj: AnyRef): Unit = {
+    webView.bind(name, obj, true)
+  }
+
   def load(url: URL): Unit = webView.load(url)
 
   def reload(): Unit = webView.reload()

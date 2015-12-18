@@ -20,8 +20,10 @@ class WebViewExtension extends DefaultClassManager {
   }
 
   override def load(prims: PrimitiveManager) = {
+    val bridge = new NetLogoJavascriptBridge
     val manager =
-      new WebViewStateManager(new NetLogoJavascriptBridge)
+      new WebViewStateManager(bridge)
+    prims.addPrimitive("add-module",   new AddModule(manager, bridge))
     prims.addPrimitive("browse",       Browse)
     prims.addPrimitive("close",        new Close(manager))
     prims.addPrimitive("create-frame", new CreateFrame(folder, manager))
@@ -187,6 +189,25 @@ class Reload(manager: WebViewStateManager) extends DefaultCommand {
 
   override def perform(args: Array[Argument], context: Context): Unit =
     manager.reload()
+}
+
+class AddModule(manager: WebViewStateManager, bridge: JavascriptBridge) extends DefaultCommand {
+  def modules = Map[String, Object](
+    "NetLogo" -> bridge,
+    "javaWebView" -> manager.webView.webView
+  )
+
+  override def getSyntax: Syntax =
+    Syntax.commandSyntax(Array(Syntax.StringType))
+
+  override def getAgentClassString: String =
+    "OTPL"
+
+  override def perform(args: Array[Argument], context: Context): Unit = {
+    val moduleName = args(0).getString
+    val module = modules.getOrElse(moduleName, throw new ExtensionException("Invalid module: " + moduleName))
+    manager.addModule(moduleName, module)
+  }
 }
 
 class IsOpen(manager: WebViewStateManager) extends DefaultReporter {

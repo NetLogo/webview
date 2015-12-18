@@ -34,7 +34,6 @@ trait FxManagerBehaviors { this: FunSpec with EasyMockSugar =>
 
   def executesJS[T <: WebView](manager: WebViewStateManager, browserHandleMock: T, before: () => Unit) = {
     it("can execute JS") {
-      val indexDocument = new java.io.File("foobar")
       implicit val mocks = MockObjects(browserHandleMock)
 
       mockExpect(browserHandleMock.executeJS("foobar"))
@@ -42,6 +41,17 @@ trait FxManagerBehaviors { this: FunSpec with EasyMockSugar =>
       whenExecuting {
         before()
         manager.executeJS("foobar")
+      }
+    }
+
+    it("can load modules") {
+      implicit val mocks = MockObjects(browserHandleMock)
+
+      mockExpect(browserHandleMock.bind("foo", "bar", true))
+
+      whenExecuting {
+        before()
+        manager.addModule("foo", "bar")
       }
     }
   }
