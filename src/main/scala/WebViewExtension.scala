@@ -36,6 +36,7 @@ class WebViewExtension extends DefaultClassManager {
     prims.addPrimitive("reload",       new Reload(manager))
     prims.addPrimitive("null",         new JsNull)
     prims.addPrimitive("undefined",    new JsUndefined)
+    prims.addPrimitive("unfocus",      Unfocus)
     stateManager = Some(manager)
   }
 
@@ -64,7 +65,7 @@ trait DefaultOpenArgs {
 
 class CreateFrame(val folder: Option[File], manager: WebViewStateManager)
   extends DefaultCommand with DefaultOpenArgs {
-    val frame = new Frame(xClickedCallback = (() => manager.close()))
+    val frame = new Frame()
 
   override def getSyntax: Syntax =
     Syntax.commandSyntax(Array(Syntax.StringType | Syntax.RepeatableType))
@@ -226,6 +227,16 @@ class Focus(manager: WebViewStateManager) extends DefaultCommand {
 
   override def perform(args: Array[Argument], context: Context): Unit = {
     manager.container.foreach(_.focus())
+  }
+}
+
+object Unfocus extends DefaultCommand {
+  override def getSyntax: Syntax = Syntax.commandSyntax(Array[Int]())
+
+  override def getAgentClassString: String = "OTPL"
+
+  override def perform(args: Array[Argument], context: Context): Unit = {
+    Container.unfocus()
   }
 }
 

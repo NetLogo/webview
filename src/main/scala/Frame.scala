@@ -13,15 +13,17 @@ import util.FunctionToCallback.{ function2ChangeListener, function2Runnable }
 
 class Frame(
   title           : String     = "Webview",
-  xClickedCallback: () => Unit = {() => },
   onClose         : Int        = WindowConstants.HIDE_ON_CLOSE)
   extends JFrame(title) with Container {
+
+  def onXClicked(): Unit = {}
 
   var group = Option.empty[Group]
   val panel = new JFXPanel()
   add(panel)
   setSize(800, 600)
   setDefaultCloseOperation(onClose)
+  setAutoRequestFocus(false)
 
   val resizeListener =
     function2ChangeListener { (oldBounds: Bounds, newBounds: Bounds) =>
@@ -34,7 +36,7 @@ class Frame(
 
   val listener = new WindowAdapter() {
     override def windowClosing(windowEvent: WindowEvent): Unit = {
-      xClickedCallback()
+      onXClicked()
     }
   }
 

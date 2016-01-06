@@ -182,6 +182,16 @@ Example:
 webview:focus
 ```
 
+### `webview:unfocus`
+
+Switches focus from the currently open webview frame or tab to the NetLogo interface tab.
+
+Example:
+
+```NetLogo
+webview:unfocus
+```
+
 ### `webview:is-open?`
 
 Checks whether a Webview tab or frame is open.
