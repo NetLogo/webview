@@ -13,7 +13,7 @@ import util.FunctionToCallback.{ function2ChangeListener, function2Runnable }
 
 class Frame(
   title           : String     = "Webview",
-  onClose         : Int        = WindowConstants.HIDE_ON_CLOSE)
+  onClose         : Int        = WindowConstants.DO_NOTHING_ON_CLOSE)
   extends JFrame(title) with Container {
 
   def onXClicked(): Unit = {}

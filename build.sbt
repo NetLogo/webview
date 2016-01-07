@@ -7,7 +7,7 @@ scalaSource in Compile := { baseDirectory.value  / "src" / "main" }
 scalaSource in Test := { baseDirectory.value  / "src" / "test" }
 
 scalacOptions ++= Seq("-deprecation", "-unchecked", "-Xlint", "-Xfatal-warnings",
-                        "-encoding", "us-ascii")
+                        "-feature", "-encoding", "us-ascii")
 
 javacOptions ++= Seq("-g", "-deprecation", "-Xlint:all", "-encoding", "us-ascii")
 
