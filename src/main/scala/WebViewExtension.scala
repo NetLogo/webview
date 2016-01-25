@@ -246,7 +246,12 @@ object Browse extends DefaultCommand {
   override def getAgentClassString: String = "OTPL"
 
   override def perform(args: Array[Argument], context: Context): Unit = {
-    if (Desktop.isDesktopSupported)
-      Desktop.getDesktop.browse(new URI(args(0).getString))
+    try {
+      if (Desktop.isDesktopSupported)
+        Desktop.getDesktop.browse(new URI(args(0).getString))
+    } catch {
+      case i: java.io.IOException         => throw new ExtensionException("invalid URI " + args(0).getString)
+      case e: java.net.URISyntaxException => throw new ExtensionException("invalid URI " + args(0).getString)
+    }
   }
 }
