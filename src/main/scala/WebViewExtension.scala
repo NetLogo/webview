@@ -5,8 +5,11 @@ import java.net.{ URI, URL }
 import java.awt.Desktop
 
 import org.nlogo.app.App
-import org.nlogo.api._
-import org.nlogo.api.Syntax._
+import org.nlogo.api.{ Argument, Command, Context,
+  DefaultClassManager, ExtensionException, ExtensionManager,
+  PrimitiveManager, Reporter }
+import org.nlogo.workspace.{ ExtensionManager => WExtensionManager }, WExtensionManager.extensionPath
+import org.nlogo.core.{ Syntax, LogoList }
 import org.nlogo.api.ScalaConversions._
 
 import scala.util.Try
@@ -16,7 +19,17 @@ class WebViewExtension extends DefaultClassManager {
   var stateManager = Option.empty[WebViewStateManager]
 
   override def runOnce(extensionManager: ExtensionManager) = {
-    folder = Some(new File(extensionManager.resolvePathAsURL("webview").replaceAll("file:", "")))
+    val file = new File(extensionPath, "webview")
+    folder =
+      if (file.exists)
+        Some(file)
+      else
+        extensionManager match {
+          case em: WExtensionManager =>
+            val modelFile = new File(em.workspace.attachModelDir("extensions/webview"))
+            if (modelFile.exists) Some(modelFile) else None
+          case _ => None
+        }
   }
 
   override def load(prims: PrimitiveManager) = {
@@ -64,13 +77,11 @@ trait DefaultOpenArgs {
 }
 
 class CreateFrame(val folder: Option[File], manager: WebViewStateManager)
-  extends DefaultCommand with DefaultOpenArgs {
+  extends Command with DefaultOpenArgs {
     val frame = new Frame()
 
   override def getSyntax: Syntax =
     Syntax.commandSyntax(Array(Syntax.StringType | Syntax.RepeatableType))
-
-  override def getAgentClassString: String = "OTPL"
 
   override def perform(args: Array[Argument], context: Context): Unit =
     try {
@@ -84,13 +95,11 @@ class CreateFrame(val folder: Option[File], manager: WebViewStateManager)
 }
 
 class CreateTab(val folder: Option[File], manager: WebViewStateManager)
-  extends DefaultCommand with DefaultOpenArgs {
+  extends Command with DefaultOpenArgs {
     val tab = new Tab
 
   override def getSyntax: Syntax =
     Syntax.commandSyntax(Array(Syntax.StringType | Syntax.RepeatableType))
-
-  override def getAgentClassString: String = "OTPL"
 
   override def perform(args: Array[Argument], context: Context): Unit =
     try {
@@ -103,11 +112,9 @@ class CreateTab(val folder: Option[File], manager: WebViewStateManager)
     }
 }
 
-class JsExec(manager: WebViewStateManager) extends DefaultCommand {
+class JsExec(manager: WebViewStateManager) extends Command {
   override def getSyntax: Syntax =
     Syntax.commandSyntax(Array(Syntax.StringType))
-
-  override def getAgentClassString: String = "OTPL"
 
   override def perform(args: Array[Argument], context: Context): Unit = {
     try {
@@ -119,11 +126,9 @@ class JsExec(manager: WebViewStateManager) extends DefaultCommand {
   }
 }
 
-class JsEval(manager: WebViewStateManager) extends DefaultReporter {
+class JsEval(manager: WebViewStateManager) extends Reporter {
   override def getSyntax: Syntax =
-    Syntax.reporterSyntax(Array(Syntax.StringType), Syntax.WildcardType)
-
-  override def getAgentClassString: String = "OTPL"
+    Syntax.reporterSyntax(right = List(Syntax.StringType), ret = Syntax.WildcardType)
 
   override def report(args: Array[Argument], context: Context): AnyRef = {
     try {
@@ -135,18 +140,13 @@ class JsEval(manager: WebViewStateManager) extends DefaultReporter {
   }
 }
 
-class JsNull extends DefaultReporter {
-  override def getSyntax: Syntax = Syntax.reporterSyntax(Array[Int](), Syntax.WildcardType)
-
-  override def getAgentClassString: String = "OTPL"
-
+class JsNull extends Reporter {
+  override def getSyntax: Syntax = Syntax.reporterSyntax(right = List(), ret = Syntax.WildcardType)
   override def report(args: Array[Argument], context: Context): AnyRef = null
 }
 
-class JsUndefined extends DefaultReporter {
-  override def getSyntax: Syntax = Syntax.reporterSyntax(Array[Int](), Syntax.WildcardType)
-
-  override def getAgentClassString: String = "OTPL"
+class JsUndefined extends Reporter {
+  override def getSyntax: Syntax = Syntax.reporterSyntax(right = List(), ret = Syntax.WildcardType)
 
   // this is the actual value returned by JavaFX when evaluating undefined
   // -- sigh --  RG 9/24/15
@@ -154,23 +154,17 @@ class JsUndefined extends DefaultReporter {
     "undefined"
 }
 
-class Close(manager: WebViewStateManager) extends DefaultCommand {
+class Close(manager: WebViewStateManager) extends Command {
   override def getSyntax: Syntax =
-    Syntax.commandSyntax(Array[Int]())
-
-  override def getAgentClassString: String =
-    "OTPL"
+    Syntax.commandSyntax(right = List())
 
   override def perform(args: Array[Argument], context: Context): Unit =
     manager.close()
 }
 
-class Load(manager: WebViewStateManager) extends DefaultCommand {
+class Load(manager: WebViewStateManager) extends Command {
   override def getSyntax: Syntax =
     Syntax.commandSyntax(Array(Syntax.StringType))
-
-  override def getAgentClassString: String =
-    "OTPL"
 
   override def perform(args: Array[Argument], context: Context): Unit =
     try {
@@ -181,18 +175,15 @@ class Load(manager: WebViewStateManager) extends DefaultCommand {
     }
 }
 
-class Reload(manager: WebViewStateManager) extends DefaultCommand {
+class Reload(manager: WebViewStateManager) extends Command {
   override def getSyntax: Syntax =
-    Syntax.commandSyntax(Array[Int]())
-
-  override def getAgentClassString: String =
-    "OTPL"
+    Syntax.commandSyntax(right = List())
 
   override def perform(args: Array[Argument], context: Context): Unit =
     manager.reload()
 }
 
-class AddModule(manager: WebViewStateManager, bridge: JavascriptBridge) extends DefaultCommand {
+class AddModule(manager: WebViewStateManager, bridge: JavascriptBridge) extends Command {
   def modules = Map[String, Object](
     "NetLogo" -> bridge,
     "javaWebView" -> manager.webView.webView
@@ -201,9 +192,6 @@ class AddModule(manager: WebViewStateManager, bridge: JavascriptBridge) extends 
   override def getSyntax: Syntax =
     Syntax.commandSyntax(Array(Syntax.StringType))
 
-  override def getAgentClassString: String =
-    "OTPL"
-
   override def perform(args: Array[Argument], context: Context): Unit = {
     val moduleName = args(0).getString
     val module = modules.getOrElse(moduleName, throw new ExtensionException("Invalid module: " + moduleName))
@@ -211,39 +199,31 @@ class AddModule(manager: WebViewStateManager, bridge: JavascriptBridge) extends 
   }
 }
 
-class IsOpen(manager: WebViewStateManager) extends DefaultReporter {
-  override def getSyntax: Syntax = Syntax.reporterSyntax(Array[Int](), Syntax.BooleanType)
-
-  override def getAgentClassString: String = "OTPL"
+class IsOpen(manager: WebViewStateManager) extends Reporter {
+  override def getSyntax: Syntax = Syntax.reporterSyntax(right = List(), ret = Syntax.BooleanType)
 
   override def report(args: Array[Argument], context: Context): AnyRef =
     Boolean.box(manager.container.nonEmpty)
 }
 
-class Focus(manager: WebViewStateManager) extends DefaultCommand {
-  override def getSyntax: Syntax = Syntax.commandSyntax(Array[Int]())
-
-  override def getAgentClassString: String = "OTPL"
+class Focus(manager: WebViewStateManager) extends Command {
+  override def getSyntax: Syntax = Syntax.commandSyntax(right = List())
 
   override def perform(args: Array[Argument], context: Context): Unit = {
     manager.container.foreach(_.focus())
   }
 }
 
-object Unfocus extends DefaultCommand {
-  override def getSyntax: Syntax = Syntax.commandSyntax(Array[Int]())
-
-  override def getAgentClassString: String = "OTPL"
+object Unfocus extends Command {
+  override def getSyntax: Syntax = Syntax.commandSyntax(right = List())
 
   override def perform(args: Array[Argument], context: Context): Unit = {
     Container.unfocus()
   }
 }
 
-object Browse extends DefaultCommand {
-  override def getSyntax: Syntax = Syntax.commandSyntax(Array[Int](Syntax.StringType))
-
-  override def getAgentClassString: String = "OTPL"
+object Browse extends Command {
+  override def getSyntax: Syntax = Syntax.commandSyntax(right = List(Syntax.StringType))
 
   override def perform(args: Array[Argument], context: Context): Unit = {
     try {

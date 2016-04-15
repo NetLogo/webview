@@ -4,7 +4,7 @@ import javafx.scene.web.WebEngine
 
 import netscape.javascript.JSObject
 
-import org.nlogo.api.LogoList
+import org.nlogo.core.LogoList
 
 class JsTranslator(webEngine: WebEngine) {
   val ObjectProto =

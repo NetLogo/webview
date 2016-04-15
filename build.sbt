@@ -13,15 +13,14 @@ javacOptions ++= Seq("-g", "-deprecation", "-Xlint:all", "-encoding", "us-ascii"
 
 name := "WebViewExtension"
 
-libraryDependencies +=
-  "org.nlogo" % "NetLogo" % "5.3" from "http://ccl.northwestern.edu/devel/NetLogo-5.3-LevelSpace-3a6b9b4.jar"
-
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "2.2.4" % "test",
+  "org.scalatest" %% "scalatest" % "2.2.6" % "test",
   "org.easymock" % "easymock" % "3.4" % "test"
 )
 
 enablePlugins(org.nlogo.build.NetLogoExtension)
+
+netLogoVersion      := "6.0.0-M4"
 
 netLogoClassManager := "org.nlogo.extensions.webview.WebViewExtension"
 
@@ -29,7 +28,7 @@ netLogoExtName      := "webview"
 
 netLogoZipSources   := false
 
-netLogoZipExtras ++= (baseDirectory.value / "html" ***).get.map(
+netLogoPackageExtras ++= (baseDirectory.value / "html" ***).get.map(
   f => (f -> ("html/" + f.getName)))
 
 fork in run := true

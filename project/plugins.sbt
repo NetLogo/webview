@@ -1,2 +1,6 @@
-addSbtPlugin("org.nlogo" % "netlogo-extension-plugin" % "2.2_5.3.x" from
-  "https://github.com/NetLogo/NetLogo-Extension-Plugin/releases/download/v2.2_5.3-M1/netlogo-extension-plugin-2.2_5.3.x.jar")
+resolvers += Resolver.url(
+  "NetLogo-JVM",
+  url("http://dl.bintray.com/content/netlogo/NetLogo-JVM"))(
+    Resolver.ivyStylePatterns)
+
+addSbtPlugin("org.nlogo" % "netlogo-extension-plugin" % "3.0")

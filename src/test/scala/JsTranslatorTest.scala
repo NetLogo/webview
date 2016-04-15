@@ -8,7 +8,7 @@ import org.scalatest.FunSuite
 import org.scalatest.concurrent.AsyncAssertions
 import org.scalatest.time.{ Millis, Span }
 
-import org.nlogo.api.LogoList
+import org.nlogo.core.LogoList
 
 class JsTranslatorTest extends FunSuite with AsyncAssertions {
   val _ = new JFXPanel()

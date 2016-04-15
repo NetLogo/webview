@@ -1,7 +1,8 @@
 package org.nlogo.extensions.webview
 
 import org.nlogo.agent.Observer
-import org.nlogo.api.{ CompilerException, SimpleJobOwner }
+import org.nlogo.core.{ AgentKind, CompilerException }
+import org.nlogo.api.SimpleJobOwner
 import org.nlogo.app.App
 import org.nlogo.nvm.Procedure
 import org.nlogo.workspace.AbstractWorkspace
@@ -16,7 +17,7 @@ class NetLogoJavascriptBridge extends JavascriptBridge {
 
   private def asyncEval(toProcedure: AbstractWorkspace => Procedure, onResult: JSObject, onError: JSObject) = {
     val workspace = App.app.workspace
-    val owner = new SimpleJobOwner("WebView Extension", workspace.world.mainRNG, classOf[Observer])
+    val owner = new SimpleJobOwner("WebView Extension", workspace.world.mainRNG, AgentKind.Observer)
     try {
       val procedure = toProcedure(workspace)
       val job = workspace.jobManager.makeConcurrentJob(owner, workspace.world.observers, procedure)
